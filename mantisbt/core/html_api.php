@@ -188,12 +188,14 @@ function html_page_top1( $p_page_title = null ) {
 
 	$t_favicon_image = config_get( 'favicon_image' );
 	if( !is_blank( $t_favicon_image ) ) {
-		echo "\t", '<link rel="shortcut icon" href="', helper_mantis_url( $t_favicon_image ), '" type="image/x-icon" />', "\n";
+		//ebomod: commented the following line
+		//echo "\t", '<link rel="shortcut icon" href="', helper_mantis_url( $t_favicon_image ), '" type="image/x-icon" />', "\n";
 	}
 
 	// Advertise the availability of the browser search plug-ins.
-	echo "\t", '<link rel="search" type="application/opensearchdescription+xml" title="MantisBT: Text Search" href="' . string_sanitize_url( 'browser_search_plugin.php?type=text', true) . '" />';
-	echo "\t", '<link rel="search" type="application/opensearchdescription+xml" title="MantisBT: Issue Id" href="' . string_sanitize_url( 'browser_search_plugin.php?type=id', true) . '" />';
+	//ebomod: commented the following 2 lines
+	//echo "\t", '<link rel="search" type="application/opensearchdescription+xml" title="MantisBT: Text Search" href="' . string_sanitize_url( 'browser_search_plugin.php?type=text', true) . '" />';
+	//echo "\t", '<link rel="search" type="application/opensearchdescription+xml" title="MantisBT: Issue Id" href="' . string_sanitize_url( 'browser_search_plugin.php?type=id', true) . '" />';
 
 	html_title( $p_page_title );
 	html_head_javascript();

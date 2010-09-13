@@ -30,41 +30,45 @@ function zing_bt_options() {
 	$zing_bt_options[] = array(  "name" => "Integration Settings",
             "type" => "heading",
 			"desc" => "This section customizes the way Bug Tracker interacts with Wordpress.");
-	$zing_bt_options[] = array(	"name" => "Type of integration",
-			"desc" => "Select the way you and your users want to login. In WP mode, your users will only need to login once<br />
-			to have access to the forum. In MyBB mode, users in your blog and in your forum are independent.",
-			"id" => $zing_bt_shortname."_login",
-			"std" => "WP",
-			"type" => "select",
-			"options" => $zing_login_type);
-	$zing_bt_options[] = array(	"name" => "MyBB admin user",
-			"desc" => "Default MyBB admin user, used for upgrades and synchronisation of new users.<br /> Unless you have a reason to do so, we recommend to keep the default value.",
-			"id" => $zing_bt_shortname."_admin_login",
-			"std" => $current_user->data->user_login,
-			"type" => "text");
-	$zing_bt_options[] = array(	"name" => "MyBB admin password",
-			"desc" => "If not using the Wordpress user integration, specify the password of the MyBB admin user,<br />this will be used to easily upgrade your system and for other housekeeping tasks.<br />",
-			"id" => $zing_bt_shortname."_admin_password",
-			"std" => 'admin',
-			"type" => "text");
+	/*
+	 $zing_bt_options[] = array(	"name" => "Type of integration",
+	 "desc" => "Select the way you and your users want to login. In WP mode, your users will only need to login once<br />
+	 to have access to the forum. In MyBB mode, users in your blog and in your forum are independent.",
+	 "id" => $zing_bt_shortname."_login",
+	 "std" => "WP",
+	 "type" => "select",
+	 "options" => $zing_login_type);
+	 $zing_bt_options[] = array(	"name" => "MyBB admin user",
+	 "desc" => "Default MyBB admin user, used for upgrades and synchronisation of new users.<br /> Unless you have a reason to do so, we recommend to keep the default value.",
+	 "id" => $zing_bt_shortname."_admin_login",
+	 "std" => $current_user->data->user_login,
+	 "type" => "text");
+	 $zing_bt_options[] = array(	"name" => "MyBB admin password",
+	 "desc" => "If not using the Wordpress user integration, specify the password of the MyBB admin user,<br />this will be used to easily upgrade your system and for other housekeeping tasks.<br />",
+	 "id" => $zing_bt_shortname."_admin_password",
+	 "std" => 'admin',
+	 "type" => "text");
+	 */
 	$zing_bt_options[] = array(	"name" => "Footer",
-			"desc" => "Specify where you want the Zingiri footer to appear. If you disable the footer here,<br />we count on you to link back to our site some other way.",
+			"desc" => "Specify where you want our footer to appear. If you disable the footer here,<br />we count on you to link back to our site some other way.",
 			"id" => $zing_bt_shortname."_footer",
 			"std" => 'Page',
 			"type" => "select",
 			"options" => array('Site','Page','None'));
-	$zing_bt_options[] = array(  "name" => "Advanced - Database settings",
-            "type" => "heading",
-			"desc" => "By default when installing the plugin, forum database tables will be created automatically.<br />If you want to use your own database fill in the following settings, otherwise leave them blank.<br />Also make sure you have an administrator user in your forum with the login name <strong style=\"color:blue\">".$current_user->data->user_login."</strong>.");
-	$zing_bt_options[] = array(	"name" => "Name",
-			"desc" => "Database name",
-			"id" => $zing_bt_shortname."_mantisbt_dbname",
-			"type" => "text");
-	$zing_bt_options[] = array(	"name" => "MyBB prefix",
-			"desc" => "Database tables prefix",
-			"id" => $zing_bt_shortname."_mantisbt_dbprefix",
-			"type" => "text");
-	
+	/*
+	 $zing_bt_options[] = array(  "name" => "Advanced - Database settings",
+	 "type" => "heading",
+	 "desc" => "By default when installing the plugin, the database tables will be created automatically.<br />If you want to use your own database fill in the following settings, otherwise leave them blank.<br />Also make sure you have an administrator user in your forum with the login name <strong style=\"color:blue\">".$current_user->data->user_login."</strong>.");
+	 $zing_bt_options[] = array(	"name" => "Name",
+	 "desc" => "Database name",
+	 "id" => $zing_bt_shortname."_mantisbt_dbname",
+	 "type" => "text");
+	 $zing_bt_options[] = array(	"name" => "MyBB prefix",
+	 "desc" => "Database tables prefix",
+	 "id" => $zing_bt_shortname."_mantisbt_dbprefix",
+	 "type" => "text");
+	 */
+
 	return $zing_bt_options;
 }
 
@@ -73,7 +77,7 @@ function zing_bt_add_admin() {
 	global $zing_bt_name, $zing_bt_shortname;
 
 	$zing_bt_options=zing_bt_options();
-	
+
 	if ( $_GET['page'] == "bug-tracker-cp" ) {
 
 		if ( 'install' == $_REQUEST['action'] ) {
@@ -88,12 +92,9 @@ function zing_bt_add_admin() {
 				}
 			}
 			if (zing_bt_install()) {
-				if (get_option("zing_bt_login")=="WP") {
-					require_once(dirname(__FILE__).'/includes/wpusers.class.php');
-					$wpusers=new wpusers();
-					$wpusers->sync();
-					die();
-				}
+				require_once(dirname(__FILE__).'/includes/wpusers.class.php');
+				$wpusers=new wpusers();
+				$wpusers->sync();
 			}
 			header("Location: options-general.php?page=bug-tracker-cp&installed=true");
 			die;
@@ -122,9 +123,9 @@ function zing_mantisbt_admin() {
 	//global $zing_bt_menu;
 
 	$zing_bt_mode="admin";
-	if (!$_GET['zforumadmin']) $_GET['zforumadmin']='index';
+	if (!$_GET['zbtadmin']) $_GET['zbtadmin']='index';
 	echo '<div style="width:80%;">';
-	if (get_option("zing_bt_login")=="WP") zing_bt_login_admin();
+	zing_bt_login_admin();
 	zing_bt_header();
 	//if ($zing_bt_content=='redirect') {
 	//	header('Location:'.get_option('home').'/?page_id='.zing_bt_mainpage());
@@ -140,7 +141,7 @@ function zing_bt_admin() {
 	global $zing_bt_name, $zing_bt_shortname;
 
 	$zing_bt_options=zing_bt_options();
-	
+
 	if ( $_REQUEST['installed'] ) echo '<div id="message" class="updated fade"><p><strong>'.$zing_bt_name.' installed.</strong></p></div>';
 	if ( $_REQUEST['uninstalled'] ) echo '<div id="message" class="updated fade"><p><strong>'.$zing_bt_name.' uninstalled.</strong></p></div>';
 

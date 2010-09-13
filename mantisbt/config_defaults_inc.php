@@ -254,7 +254,8 @@
 	 * correctly configured.
 	 * @global int $g_send_reset_password
 	 */
-	$g_send_reset_password	= ON;
+	//ebomod: set to OFF to allow capturing passwords during user sync
+	$g_send_reset_password	= OFF;
 
 	/**
 	 * String used to generate the confirm_hash for the 'lost password' feature and captcha code for 'signup'
@@ -730,7 +731,9 @@
 	 * Logo
 	 * @global string $g_logo_image
 	 */
-	$g_logo_image			= 'images/mantis_logo.gif';
+	//ebomod: don't show the logo
+	//$g_logo_image			= 'images/mantis_logo.gif';
+	$g_logo_image='';
 
 	/**
 	 * Logo URL link
@@ -2852,7 +2855,9 @@
 	 * table prefix
 	 * @global string $g_db_table_prefix
 	 */
-	$g_db_table_prefix		= 'mantis';
+	//$g_db_table_prefix		= 'mantis';
+	//ebomod
+	$g_db_table_prefix		= $_REQUEST['prefix'] ? $_REQUEST['prefix'] : 'wp_mantis';
 
 	/**
 	 * table suffix

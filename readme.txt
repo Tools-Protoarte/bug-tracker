@@ -4,7 +4,7 @@ Donate link: http://www.zingiri.com/
 Tags: forum, bulletin board, support, discussion, social engine, groups, subscribe
 Requires at least: 2.1.7
 Tested up to: 3.0.1
-Stable tag: 0.2.0
+Stable tag: 0.2
 
 Bug Tracker is a plugin that integrates the powerfull Mantis Bug Tracker software with Wordpress.
 == Description ==
@@ -51,8 +51,8 @@ This section provides a quick overview of MyBB files that had to be modified to 
 
 == Changelog ==
 
-= 0.2.0 =
+= 0.2 =
 * Alpha release
 
-= 0.1.0 =
+= 0.1 =
 * Mantis BT 1.2.2

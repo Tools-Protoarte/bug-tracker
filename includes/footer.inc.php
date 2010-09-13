@@ -7,7 +7,6 @@ if (!function_exists('zing_footers')) {
 		$bail_out = ( ( defined( 'WP_ADMIN' ) && WP_ADMIN == true ) || ( strpos( $_SERVER[ 'PHP_SELF' ], 'wp-admin' ) !== false ) );
 		if ( $bail_out ) return $footer;
 
-		//Please contact us if you wish to remove the Zingiri logo in the footer
 		if (!$zing_footer) {
 			$msg.='<center style="margin-top:0px;font-size:x-small">';
 			$msg.='Powered by <a href="http://www.zingiri.com">Zingiri</a>';
