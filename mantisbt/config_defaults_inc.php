@@ -254,7 +254,7 @@
 	 * correctly configured.
 	 * @global int $g_send_reset_password
 	 */
-	//ebomod: set to OFF to allow capturing passwords during user sync
+	//hackz: set to OFF to allow capturing passwords during user sync
 	$g_send_reset_password	= OFF;
 
 	/**
@@ -731,7 +731,7 @@
 	 * Logo
 	 * @global string $g_logo_image
 	 */
-	//ebomod: don't show the logo
+	//hackz: don't show the logo
 	//$g_logo_image			= 'images/mantis_logo.gif';
 	$g_logo_image='';
 
@@ -2856,7 +2856,7 @@
 	 * @global string $g_db_table_prefix
 	 */
 	//$g_db_table_prefix		= 'mantis';
-	//ebomod
+	//hackz
 	$g_db_table_prefix		= $_REQUEST['prefix'] ? $_REQUEST['prefix'] : 'wp_mantis';
 
 	/**
@@ -3828,3 +3828,11 @@
 		'anonymous', 'content_expire', 'html_valid_tags', 'custom_headers', 'rss_key_seed', 'plugins_enabled', 'session_', 'form_security_',
 		'compress_html', '_page$', '_url$',
 	);
+
+	//hackz - the following options are custom
+	# --- anonymous login -----------
+	$g_allow_anonymous_login = ON;
+	$g_anonymous_account = 'anonymous';
+ 
+	# Optionally, if you want to use blank email addresses
+	//$g_allow_blank_email = ON;

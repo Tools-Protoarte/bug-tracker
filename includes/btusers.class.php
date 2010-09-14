@@ -1,25 +1,20 @@
 <?php
 
-$wpusers=new wpusers();
+$btusers=new btusers();
 
-class wpusers {
+class btusers {
 	var $prefix;
 	var $base_prefix;
 	var $wpAdmin=false;
 	var $wpCustomer=false;
 	var $dbname;
 
-	function wpusers() {
+	function btusers() {
 		global $wpdb;
 		if (isset($wpdb->base_prefix)) $this->base_prefix=$wpdb->base_prefix;
 		else $this->base_prefix=$wpdb->prefix;
-		if ($n=get_option('zing_bt_mantisbt_dbname')) {
-			$this->prefix=get_option('zing_bt_mantisbt_dbprefix');
-			$this->dbname=get_option('zing_bt_mantisbt_dbname');
-		} else {
 			$this->prefix=$wpdb->prefix."mantis_";
 			$this->dbname=DB_NAME;
-		}
 		$this->wpAdmin=true;
 		$this->wpCustomer=true;
 	}
@@ -37,12 +32,11 @@ class wpusers {
 	function sync() {
 		global $wpdb,$blog_id;
 		global $zErrorLog;
-		
+
 		if (!$this->wpAdmin) return;
 
 		$wpdb->show_errors();
 		$users=$this->getWpUsers();
-		//print_r($users);
 
 		//sync Bug tracker to Wordpress - Wordpress is master so we're not changing roles in Wordpress
 		$bbUsers=$this->getBugTrackerUsers();
@@ -72,9 +66,9 @@ class wpusers {
 			if (!isset($user->data->last_name)) $user->data->last_name=$user->data->display_name;
 			$group=$this->getBugTrackerGroup($user);
 			if (!$this->existsBugTrackerUser($user->data->user_login)) { //create user
-				$this->createBugTrackerUser($user->data->user_login,$user->data->user_pass,$user->data->user_email,$group);
+				$this->createBugTrackerUser($user->data->user_login,btPassword($user->data->user_pass),$user->data->user_email,$group);
 			} else { //update user
-				$this->updateBugTrackerUser($user->data->user_login,$user->data->user_pass,$user->data->user_email,$group);
+				$this->updateBugTrackerUser($user->data->user_login,btPassword($user->data->user_pass),$user->data->user_email,$group);
 			}
 		}
 	}
@@ -84,15 +78,10 @@ class wpusers {
 		$rows=array();
 
 		$wpdb->select($this->dbname);
-		$query="select * from `##user_table`";
+		$query="select * from `##user_table` where `username`<>'anonymous'";
 		$query=str_replace("##",$this->prefix,$query);
 		$sql = mysql_query($query) or die(mysql_error());
 		while ($row = mysql_fetch_array($sql)) {
-			//$query_group=sprintf("SELECT * FROM `".$this->prefix."usergroups` WHERE `gid`='%s'",$row['usergroup']);
-			//$sql_group = mysql_query($query_group) or die(mysql_error());
-			//if ($row_group = mysql_fetch_array($sql_group)) {
-				//$row['group']=$row_group;
-			//}
 			$rows[]=$row;
 		}
 		$wpdb->select(DB_NAME);
@@ -100,7 +89,6 @@ class wpusers {
 	}
 
 	function getBugTrackerGroup($user) {
-		//echo 'ok';
 		if ($user->has_cap('level_10')) {
 			$group='90'; //admins
 		} elseif ($user->has_cap('level_5')) {
@@ -114,7 +102,7 @@ class wpusers {
 	function currentBugTrackerUser() {
 		global $current_user;
 		global $wpdb;
-		
+
 		$wpdb->select($this->dbname);
 		$query=sprintf("SELECT * FROM `".$this->prefix."user_table` WHERE `username`='".$current_user->data->user_login."'");
 		$sql = mysql_query($query) or die(mysql_error());
@@ -137,7 +125,7 @@ class wpusers {
 
 	function getBugTrackerUser($login) {
 		global $wpdb;
-		
+
 		$wpdb->select($this->dbname);
 		$query=sprintf("SELECT * FROM `".$this->prefix."user_table` WHERE `username`='".$login."'");
 		$sql = mysql_query($query) or die(mysql_error());
@@ -145,52 +133,36 @@ class wpusers {
 		$wpdb->select(DB_NAME);
 		return $row;
 	}
-	
+
 	function createBugTrackerUser($username,$password,$email,$group) {
-		global $zErrorLog;
-		
-		zing_bt_login_admin();
-		$admin=$this->getBugTrackerUser(get_option('zing_bt_admin_login'));
-		
+		global $zErrorLog,$wpdb;
+
+		$prefix = $wpdb->prefix."mantis_";
+		$realname=$username;
+			
 		$zErrorLog->log(0,'Create Bug tracker user '.$username);
-		$post['username']=$username;
-		$post['realname']=$username;
-		$post['email']=$email;
-		$pos['access_level']=$group;
-		//10 viewer
-		//25 reporter
-		//40 updater
-		//55 developer
-		//70 manager
-		//90 administrator
-		$post['enabled']=1;
-		$post['password']=$post['password_verify']=substr($password,1,25);
-		$http=zing_bt_http("mantisbt",'manage_user_create_page.php');
-		$news = new HTTPRequest($http);
-		$news->post=$post;
-		if ($news->live()) {
-			$output=$news->DownloadToString(true,false);
-			$zErrorLog->log(0,'out='.$output.'=');
-		}
+			
+		$t_val = mt_rand( 0, mt_getrandmax() ) + mt_rand( 0, mt_getrandmax() );
+		$t_val = md5( $t_val ) . md5( time() );
+
+		$query= sprintf("INSERT INTO `".$prefix."user_table` (`username`, `realname`, `email`, `password`, `enabled`, `protected`, `access_level`, `date_created`, `cookie_string`)
+	VALUES('%s', '%s', '%s', '%s', 1, 1, '%s', %s, '%s')",
+		$username,$realname,$email,md5($password),$group,time(),$t_val);
+		$wpdb->query($query);
 	}
 
-	function updateBugTrackerUser($user_login,$user_pass,$user_email,$group) {
+	function updateBugTrackerUser($user_login,$password,$user_email,$group) {
 		global $wpdb,$zErrorLog;
-		
-		$zErrorLog->log(0,'Update Bug tracker user '.$username);
-		$password=md5(substr($user_pass,1,25));
 
 		$wpdb->select($this->dbname);
-		//$query2=sprintf("UPDATE `".$this->prefix."user_table` SET `usergroup`='%s',`salt`='%s',`loginkey`='%s',`password`='%s' WHERE `username`='%s'",$group,$salt,$loginkey,$password,$user_login);
-		$query2=sprintf("UPDATE `".$this->prefix."user_table` SET `password`='%s' WHERE `username`='%s'",$password,$user_login);
-		$zErrorLog->log(0,$query2);
+		$query2=sprintf("UPDATE `".$this->prefix."user_table` SET `password`='%s' WHERE `username`='%s'",md5($password),$user_login);
 		$wpdb->query($query2);
 		$wpdb->select(DB_NAME);
 	}
 
 	function createWpUser($user,$role) {
 		global $wpdb,$zErrorLog;
-		
+
 		$zErrorLog->log(0,'Create WP user '.$user);
 		require_once(ABSPATH.'wp-includes/registration.php');
 		$user['role']=$role;
@@ -199,35 +171,14 @@ class wpusers {
 	}
 
 	function deleteBugTrackerUser($login) {
-		global $zErrorLog;
-		
-		$user=$this->getBugTrackerUser($login);
-		$admin=$this->getBugTrackerUser(get_option('zing_bt_admin_login'));
-		$zErrorLog->log(0,'Delete Bug tracker user '.$user);
-		
-		//$post['username']=$username;
-		//$post['password']=$post['confirm_password']=substr($password,1,25);
-		//$post['email']=$email;
-		//$post['usergroup']=$group;
-		//$post['displaygroup']=0;
-		$post['submit']='Yes';
-		$post['my_post_key']=md5($admin['loginkey'].$admin['salt'].$admin['regdate']);
-		$_GET['module']='user/users';
-		$_GET['action']='delete';
-		$_GET['uid']=$user['uid'];
-		$http=zing_bt_http("mantisbt",'admin/index.php');
-		$zErrorLog->log(0,$http);
-		$news = new HTTPRequest($http);
-		$news->post=$post;
-		if ($news->live()) {
-			$output=$news->DownloadToString(true,false);
-			$zErrorLog->log(0,'out='.$output.'=');
-		}
-		
+		global $zErrorLog,$wpdb;
+
+		$query=sprintf("DELETE FROM `".$this->prefix."user_table` WHERE `username`='%s'",$login);
+		$wpdb->query($query);
 	}
-	
+
 	/*
-	function updateWpUser($user,$role) {
+	 function updateWpUser($user,$role) {
 		require_once(ABSPATH.'wp-includes/registration.php');
 		global $wpdb;
 		$olduser=get_userdatabylogin($user['user_login']);
@@ -235,8 +186,8 @@ class wpusers {
 		$user['role']=$role;
 		$user['user_pass']=wp_hash_password($user['user_pass']);
 		wp_insert_user($user);
-	}
-	*/
+		}
+		*/
 
 	function loggedIn() {
 		if ($this->wpAdmin && is_user_logged_in()) return true;
@@ -253,4 +204,14 @@ class wpusers {
 	}
 }
 
+function createBugTrackerUser($username,$password,$email,$realname='') {
+	global $wpdb;
+
+	$btusers=new btusers();
+	$btusers->createBugTrackerUser($username,$password,$email,'10');
+}
+
+function btPassword($password) {
+	return substr($password,1,25);
+}
 ?>

@@ -92,9 +92,8 @@ function zing_bt_add_admin() {
 				}
 			}
 			if (zing_bt_install()) {
-				require_once(dirname(__FILE__).'/includes/wpusers.class.php');
-				$wpusers=new wpusers();
-				$wpusers->sync();
+				$btusers=new btusers();
+				$btusers->sync();
 			}
 			header("Location: options-general.php?page=bug-tracker-cp&installed=true");
 			die;
@@ -113,7 +112,7 @@ function zing_bt_add_admin() {
 
 	add_menu_page($zing_bt_name, $zing_bt_name, 'administrator', 'bug-tracker-cp','zing_bt_admin');
 	add_submenu_page('bug-tracker-cp', $zing_bt_name.'- Integration', 'Integration', 'administrator', 'bug-tracker-cp', 'zing_bt_admin');
-	if (get_option("zing_bt_version")) add_submenu_page('bug-tracker-cp', $zing_bt_name.'- Administration', 'Administration', 'administrator', 'bug-tracker-admin', 'zing_mantisbt_admin');
+	//if (get_option("zing_bt_version")) add_submenu_page('bug-tracker-cp', $zing_bt_name.'- Administration', 'Administration', 'administrator', 'bug-tracker-admin', 'zing_mantisbt_admin');
 
 }
 

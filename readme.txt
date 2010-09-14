@@ -4,7 +4,7 @@ Donate link: http://www.zingiri.com/
 Tags: forum, bulletin board, support, discussion, social engine, groups, subscribe
 Requires at least: 2.1.7
 Tested up to: 3.0.1
-Stable tag: 0.2
+Stable tag: 0.3
 
 Bug Tracker is a plugin that integrates the powerfull Mantis Bug Tracker software with Wordpress.
 == Description ==
@@ -38,18 +38,19 @@ Please visit the [Zingiri](http://zingiri.com/demo/forum "Zingiri") website for 
 
 Simply go to the Wordpress Settings page for the plugins and click the Upgrade button.
 
-== MyBB Hacks ==
+== MantisBT Hacks ==
 
-This section provides a quick overview of MyBB files that had to be modified to integrate it seamlessly with Wordpress
+A small number of MantisBT files have been modified. ALl the changes are marked with 'hakcz', so simply search for that word in the files in the mantisbt subfolder.
 
-* admin/styles/zingiri: custom styles
-* inc/wp-settings.php: path set in config.php
-* inc/settings.php
-* inc/config.php: force $settings['bburl'] with $_GET['zing']
-* jscripts/thread.js: ajax request, pass full http
-* wp-attachment.php
 
 == Changelog ==
+
+= 0.3 =
+* Updated MantisBT hacks section
+* Fixed issues with incorrect links
+* Auto login anonymous user
+* Fixed WP - MantisBT user sync issues
+* Removed administration link in back end
 
 = 0.2 =
 * Alpha release
