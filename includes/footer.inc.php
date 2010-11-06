@@ -9,7 +9,7 @@ if (!function_exists('zing_footers')) {
 
 		if (!$zing_footer) {
 			$msg.='<center style="margin-top:0px;font-size:x-small">';
-			$msg.='Powered by <a href="http://www.zingiri.com">Zingiri</a>';
+			$msg.='Powered by <a href="http://www.choppedcode.com">ChoppedCode</a>';
 			if (count($zing_footers) >0) {
 				foreach ($zing_footers as $foot) {
 					$msg.=', <a href="'.$foot[0].'">'.$foot[1].'</a>';

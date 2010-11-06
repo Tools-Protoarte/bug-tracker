@@ -69,7 +69,7 @@ if (!class_exists('HTTPRequest')) {
 		//check destination is reachable
 		function checkConnection() {
 			$output=$this->DownloadToString_curl();
-			if ($output=='zingiri') return true;
+			if ($output=='connected') return true;
 			else return false;
 		}
 

@@ -1,35 +1,13 @@
 <?php
-/*  bt.php
- Copyright 2008,2009,2010 Erik Bogaerts
- Support site: http://www.zingiri.com
-
- This file is part of Bug Tracker.
-
- Bug Tracker is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- Bug Tracker is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Bug Tracker; if not, write to the Free Software
- Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- */
-?>
-<?php
 function zing_bt_options() {
 	global $zing_bt_name,$zing_bt_shortname,$zing_login_type,$current_user;
-	$zing_bt_name = "Bug Tracker";
+	$zing_bt_name = "ccTracker";
 	$zing_bt_shortname = "zing_bt";
 	$zing_login_type = array("WP","MyBB");
 
 	$zing_bt_options[] = array(  "name" => "Integration Settings",
             "type" => "heading",
-			"desc" => "This section customizes the way Bug Tracker interacts with Wordpress.");
+			"desc" => "This section customizes the way ccTracker interacts with Wordpress.");
 	/*
 	 $zing_bt_options[] = array(	"name" => "Type of integration",
 	 "desc" => "Select the way you and your users want to login. In WP mode, your users will only need to login once<br />
@@ -271,9 +249,9 @@ function zing_bt_admin() {
 </form>
 <?php } ?>
 <hr />
-<img src="<?php echo ZING_BT_URL?>/zingiri-logo.png" height="50px" />
-<p>For more info and support, contact us at <a href="http://www.zingiri.com">Zingiri</a> or check
-out our <a href="http://forums.zingiri.com">support forums</a>.</p>
+<img src="<?php echo ZING_BT_URL?>/choppedcode.png" height="50px" />
+<p>For more info and support, contact us at <a href="http://www.choppedcode.com">ChoppedCode</a> or check
+out our <a href="http://forums.choppedcode.com">support forums</a>.</p>
 <?php
 }
 add_action('admin_menu', 'zing_bt_add_admin'); ?>

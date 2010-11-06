@@ -1,40 +1,18 @@
 <?php
-/*  bt.php
- Copyright 2008,2009,2010 Erik Bogaerts
- Support site: http://www.zingiri.com
-
- This file is part of Bug Tracker.
-
- Bug Tracker is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- Bug Tracker is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Bug Tracker; if not, write to the Free Software
- Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- */
-?>
-<?php
 /*
- Plugin Name: Bug Tracker
- Plugin URI: http://www.zingiri.com
- Description: Bug Tracker is a plugin that integrates the powerfull Mantis bug tracker software with Wordpress. It brings one of the most bug tracking softwares in reach of Wordpress users.
+ Plugin Name: ccTracker
+ Plugin URI: http://www.choppedcode.com
+ Description: ccTracker is a plugin that integrates the powerfull Mantis bug tracker software with Wordpress. It brings one of the most bug tracking softwares in reach of Wordpress users.
 
  Author: EBO
- Version: 0.3
- Author URI: http://www.zingiri.com/
+ Version: 0.4
+ Author URI: http://www.choppedcode.com/
  */
 
 //error_reporting(E_ALL & ~E_NOTICE);
 //ini_set('display_errors', '1');
 
-define("ZING_BT_VERSION","0.3");
+define("ZING_BT_VERSION","0.4");
 define("ZING_MANTIS","mantisbt");
 define("ZING_MANTIS_VERSION","1.2.2");
 
@@ -463,27 +441,21 @@ function zing_bt_ob($buffer) {
 		$f[]='/thisshouldneveroccur/';
 		$r[]='';
 		
+
+		$f[]='/"'.preg_quote($mantisbtself,'/').'(.*?).php\?(.*?)"'.'/';
+		$r[]='"'.$home.'index.php?page_id='.$pid.'&zbt=$1&$2"';
 		
-		$f[]='/"'.preg_quote($mantisbtself,'/').'(.*?).php\?'.'/';
-		$r[]='"'.$home.'index.php?page_id='.$pid.'&zbt=$1&';
-
-		$f[]='/"'.preg_quote($mantisbtself,'/').'(.*?).php'.'/';
-		$r[]='"'.$home.'index.php?page_id='.$pid.'&zbt=$1';
-
+		$f[]='/"'.preg_quote($mantisbtself,'/').'(.*?).php"'.'/';
+		$r[]='"'.$home.'index.php?page_id='.$pid.'&zbt=$1"';
 		
-//		$f[]='/href=\"'.preg_quote($mantisbtself,'/').'\/(.*?).php'.'\"/';
-//		$r[]='href="'.$home.'index.php?page_id='.$pid.'&zbt=$1"';
-
-		$f[]='/'.preg_quote(ZING_MANTIS_URL,'/').'\/(.*?).php\?'.'/';
-		$r[]=''.$home.'index.php?page_id='.$pid.'&zbt=$1&';
+		/*
+		$f[]='/"'.preg_quote(ZING_MANTIS_URL,'/').'\/(.*?).php\?(.*?)"'.'/';
+		$r[]='"'.$home.'index.php?page_id='.$pid.'&zbt=$1&$2"';
 		
 		$f[]='/'.preg_quote(ZING_MANTIS_URL,'/').'\/(.*?).php'.'/';
 		$r[]=''.$home.'index.php?page_id='.$pid.'&zbt=$1';
+		*/
 		
-		//$f[]='/action\="(.*?).php"/';
-		//$r[]='action="'.$home.'index.php?page_id='.$pid.'&zbt=$1"';
-
-
 		$f[]='/"([a-zA-Z\_]*?).php\?/';
 		$r[]='"'.$home.'index.php?page_id='.$pid.'&zbt=$1&';
 		
@@ -492,6 +464,10 @@ function zing_bt_ob($buffer) {
 	
 		$f[]='/"'.preg_quote($mantisbtself,'/').'([a-z_]*?)"'.'/';
 		$r[]='"'.$home.'index.php?page_id='.$pid.'&zbt=$1"';
+
+		$f[]='/action\="([a-zA-Z\_]*?)"/';
+		$r[]='action="'.$home.'index.php?page_id='.$pid.'&zbt=$1"';
+		
 		$buffer=preg_replace($f,$r,$buffer,-1,$count);
 
 		$buffer=str_replace('name="name"','name="bt_name"',$buffer);
