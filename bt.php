@@ -5,14 +5,14 @@
  Description: ccTracker is a plugin that integrates the powerfull Mantis bug tracker software with Wordpress. It brings one of the most bug tracking softwares in reach of Wordpress users.
 
  Author: EBO
- Version: 0.4
+ Version: 0.5
  Author URI: http://www.choppedcode.com/
  */
 
 //error_reporting(E_ALL & ~E_NOTICE);
 //ini_set('display_errors', '1');
 
-define("ZING_BT_VERSION","0.4");
+define("ZING_BT_VERSION","0.5");
 define("ZING_MANTIS","mantisbt");
 define("ZING_MANTIS_VERSION","1.2.2");
 
@@ -329,8 +329,12 @@ function zing_bt_output($process) {
 		$output=$news->DownloadToString(true,false);
 		$output=zing_bt_ob($output);
 		if ($news->redirect) {
-			//echo $output;
-			//die('redirect2');
+			$f[]='/Location: '.preg_quote(ZING_MANTIS_URL.'/','/').'(.*?).php\?(.*?)'.'/';
+			$r[]='Location: '.get_option('home').'/index.php?page_id='.zing_bt_mainpage().'&zbt=$1&$2';
+			$f[]='/Location: '.preg_quote(ZING_MANTIS_URL.'/','/').'(.*?).php'.'/';
+			$r[]='Location: '.get_option('home').'/index.php?page_id='.zing_bt_mainpage().'&zbt=$1';
+			$output=preg_replace($f,$r,$output,-1,$count);
+			
 			header($output);
 			die();
 		}
@@ -396,7 +400,7 @@ function zing_bt_header()
 	echo "function zing_bt_url_ajax(s) { return zing_bt_url+s; }";
 	echo '</script>';
 
-	echo '<link rel="stylesheet" type="text/css" href="' . ZING_BT_URL . 'zing.css" media="screen" />';
+	echo '<link rel="stylesheet" type="text/css" href="' . ZING_BT_URL . 'bt.css" media="screen" />';
 }
 
 function zing_bt_mainpage() {
@@ -410,6 +414,7 @@ function zing_bt_ob($buffer) {
 	$self=str_replace('index.php','',$_SERVER['PHP_SELF']);
 	$loc='http://'.$_SERVER['SERVER_NAME'];
 	$mantisbtself=str_replace($loc,'',ZING_MANTIS_URL).'/';
+	$mantisbtfull=ZING_MANTIS_URL.'/';
 	$home=get_option("home")."/";
 	$admin=get_option('siteurl').'/wp-admin/';
 	$ids=get_option("zing_bt_pages");
@@ -441,33 +446,42 @@ function zing_bt_ob($buffer) {
 		$f[]='/thisshouldneveroccur/';
 		$r[]='';
 		
-
-		$f[]='/"'.preg_quote($mantisbtself,'/').'(.*?).php\?(.*?)"'.'/';
-		$r[]='"'.$home.'index.php?page_id='.$pid.'&zbt=$1&$2"';
+		$f[]='/src\="'.preg_quote('images/','/').'(.*?)"/';
+		$r[]='src="'.ZING_MANTIS_URL.'/images/$1"';
 		
-		$f[]='/"'.preg_quote($mantisbtself,'/').'(.*?).php"'.'/';
-		$r[]='"'.$home.'index.php?page_id='.$pid.'&zbt=$1"';
+		//$f[]='/"'.preg_quote($mantisbtself,'/').'(.*?).php\?(.*?)"'.'/';
+		//$r[]='"'.$home.'index.php?page_id='.$pid.'&zbt=$1&$2"';
+		//$f[]='/"'.preg_quote($mantisbtself,'/').'(.*?).php"'.'/';
+		//$r[]='"'.$home.'index.php?page_id='.$pid.'&zbt=$1"';
 		
-		/*
-		$f[]='/"'.preg_quote(ZING_MANTIS_URL,'/').'\/(.*?).php\?(.*?)"'.'/';
-		$r[]='"'.$home.'index.php?page_id='.$pid.'&zbt=$1&$2"';
+		$f[]='/href\="'.preg_quote($mantisbtself,'/').'(.*?).php\?(.*?)"'.'/';
+		$r[]='href="'.$home.'index.php?page_id='.$pid.'&zbt=$1&$2"';
+		$f[]='/href\="'.preg_quote($mantisbtself,'/').'(.*?).php"'.'/';
+		$r[]='href="'.$home.'index.php?page_id='.$pid.'&zbt=$1"';
 		
-		$f[]='/'.preg_quote(ZING_MANTIS_URL,'/').'\/(.*?).php'.'/';
-		$r[]=''.$home.'index.php?page_id='.$pid.'&zbt=$1';
-		*/
+		$f[]='/href\="'.preg_quote($mantisbtfull,'/').'(.*?).php"'.'/';
+		$r[]='href="'.$home.'index.php?page_id='.$pid.'&zbt=$1"';
+		$f[]='/href\="'.preg_quote($mantisbtfull,'/').'(.*?).php\?(.*?)"'.'/';
+		$r[]='href="'.$home.'index.php?page_id='.$pid.'&zbt=$1&$2"';
 		
 		$f[]='/"([a-zA-Z\_]*?).php\?/';
 		$r[]='"'.$home.'index.php?page_id='.$pid.'&zbt=$1&';
 		
 		$f[]='/"([a-zA-Z\_]*?).php\"/';
 		$r[]='"'.$home.'index.php?page_id='.$pid.'&zbt=$1"';
-	
-		$f[]='/"'.preg_quote($mantisbtself,'/').'([a-z_]*?)"'.'/';
-		$r[]='"'.$home.'index.php?page_id='.$pid.'&zbt=$1"';
+			
+		//$f[]='/"'.preg_quote($mantisbtself,'/').'([a-z_]*?)"'.'/';
+		//$r[]='"'.$home.'index.php?page_id='.$pid.'&zbt=$1"';
 
-		$f[]='/action\="([a-zA-Z\_]*?)"/';
+		//$f[]='/action\="([a-zA-Z\_]*?)"/';
+		//$r[]='action="'.$home.'index.php?page_id='.$pid.'&zbt=$1"';
+		$f[]='/action\="'.preg_quote($mantisbtself,'/').'(.*?).php"'.'/';
 		$r[]='action="'.$home.'index.php?page_id='.$pid.'&zbt=$1"';
+		$f[]='/action\="'.preg_quote($mantisbtself,'/').'(.*?).php\?(.*?)"'.'/';
+		$r[]='action="'.$home.'index.php?page_id='.$pid.'&zbt=$1&$2"';
 		
+		
+		//replacement issue with src="/wordpress/wp-content/plugins/bug-tracker/mantisbt/images/rss.png" alt="RSS"
 		$buffer=preg_replace($f,$r,$buffer,-1,$count);
 
 		$buffer=str_replace('name="name"','name="bt_name"',$buffer);
@@ -487,7 +501,6 @@ function zing_bt_init()
 
 	ob_start();
 	session_start();
-
 	zing_bt_login();
 	if (isset($_GET['zbt']))
 	{
