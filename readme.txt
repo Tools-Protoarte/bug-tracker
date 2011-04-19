@@ -3,8 +3,8 @@ Contributors: EBO
 Donate link: http://www.choppedcode.com/
 Tags: issue tracker, bug tracker, changelog, Mantis, roadmap, tracker, change log
 Requires at least: 2.1.7
-Tested up to: 3.0.1
-Stable tag: 0.5
+Tested up to: 3.1.1
+Stable tag: 1.0.0
 
 ccTracker is a plugin that integrates the powerfull Mantis Bug Tracker software with Wordpress.
 == Description ==
@@ -44,6 +44,10 @@ A small number of MantisBT files have been modified. ALl the changes are marked 
 
 
 == Changelog ==
+
+= 1.0.0 =
+* Added automated cleaning of cache directory
+* Fixed message displaying MyBB references
 
 = 0.5 =
 * Fixed various link issues

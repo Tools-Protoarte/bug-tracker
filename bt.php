@@ -5,14 +5,14 @@
  Description: ccTracker is a plugin that integrates the powerfull Mantis bug tracker software with Wordpress. It brings one of the most bug tracking softwares in reach of Wordpress users.
 
  Author: EBO
- Version: 0.5
+ Version: 1.0.0
  Author URI: http://www.choppedcode.com/
  */
 
 //error_reporting(E_ALL & ~E_NOTICE);
 //ini_set('display_errors', '1');
 
-define("ZING_BT_VERSION","0.5");
+define("ZING_BT_VERSION","1.0.0");
 define("ZING_MANTIS","mantisbt");
 define("ZING_MANTIS_VERSION","1.2.2");
 
@@ -85,7 +85,7 @@ function zing_bt_check() {
 	else {
 		ob_start();
 		$c=new HTTPRequest(ZING_MANTIS_URL.'/connect.php');
-		if (!$c->checkConnection()) $errors[]='Can\'t connect to MyBB sub folders, please check your .htaccess file.';
+		if (!$c->checkConnection()) $errors[]='Can\'t connect to BT sub folders, please check your .htaccess file.';
 	}
 	if (!session_id()) $errors[]='Sessions are not working on your installation, make sure they are turned on.';
 	return array('errors'=> $errors, 'warnings' => $warnings);
@@ -119,13 +119,13 @@ function zing_bt_install() {
 
 	$zing_bt_version=get_option("zing_bt_version");
 
-	//first installation of MyBB
+	//first installation of BT
 	if (!$zing_bt_version) {
 		$zErrorLog->msg('Install bug tracker');
 		zing_bt_mantisbt_install();
 		update_option("zing_mantisbt_version",ZING_MANTIS_VERSION);
 	}
-	//upgrade MyBB if needed
+	//upgrade BT if needed
 	elseif (get_option("zing_mantisbt_version") != ZING_MANTIS_VERSION) {
 		$zErrorLog->msg('Upgrade forum');
 		zing_bt_mantisbt_upgrade();
@@ -220,6 +220,7 @@ function zing_bt_mantisbt_upgrade() {
  * @return void
  */
 function zing_bt_deactivate() {
+	wp_clear_scheduled_hook('zing_bt_cron_hook');
 }
 
 /**
@@ -619,4 +620,24 @@ function zing_bt_admin_password() {
 	$user_pass=btPassword($user->data->user_pass);
 	return $user_pass;
 }
+
+//cron
+function zing_bt_cron() {
+	$dir = dirname(__FILE__).'/cache';
+	if ($handle = opendir($dir)) {
+		while (false !== ($filename = readdir($handle))){
+			if ($filename != '.' && $filename != '..' && $filename != 'index.php' && filemtime($dirname.$filename) < strtotime ("-2 days") ){
+				unlink ($dirname.$filename) ;
+			}
+			closedir($handle);
+		}
+	}
+}
+if (get_option("zing_bt_version")) {
+	if (!wp_next_scheduled('zing_bt_cron_hook')) {
+		wp_schedule_event( time(), 'hourly', 'zing_bt_cron_hook' );
+	}
+	add_action('zing_bt_cron_hook','zing_bt_cron');
+}
+
 ?>
