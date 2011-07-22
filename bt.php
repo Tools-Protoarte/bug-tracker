@@ -5,14 +5,14 @@
  Description: ccTracker is a plugin that integrates the powerfull Mantis bug tracker software with Wordpress. It brings one of the most bug tracking softwares in reach of Wordpress users.
 
  Author: EBO
- Version: 1.0.0
+ Version: 1.0.1
  Author URI: http://www.choppedcode.com/
  */
 
 //error_reporting(E_ALL & ~E_NOTICE);
 //ini_set('display_errors', '1');
 
-define("ZING_BT_VERSION","1.0.0");
+define("ZING_BT_VERSION","1.0.1");
 define("ZING_MANTIS","mantisbt");
 define("ZING_MANTIS_VERSION","1.2.2");
 
@@ -623,14 +623,14 @@ function zing_bt_admin_password() {
 
 //cron
 function zing_bt_cron() {
-	$dir = dirname(__FILE__).'/cache';
+	$dir = dirname(__FILE__).'/cache/';
 	if ($handle = opendir($dir)) {
 		while (false !== ($filename = readdir($handle))){
-			if ($filename != '.' && $filename != '..' && $filename != 'index.php' && filemtime($dirname.$filename) < strtotime ("-2 days") ){
-				unlink ($dirname.$filename) ;
+			if (substr($filename,0,1) != '.' && $filename != 'index.php' && filemtime($dir.$filename) < strtotime ("-2 days") ){
+				unlink ($dir.$filename) ;
 			}
-			closedir($handle);
 		}
+		closedir($handle);
 	}
 }
 if (get_option("zing_bt_version")) {
