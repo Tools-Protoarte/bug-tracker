@@ -1,16 +1,24 @@
 <?php
 function zing_bt_options() {
 	global $zing_bt_name,$zing_bt_shortname,$current_user;
-	$zing_bt_name = "ccTracker";
+	$zing_bt_name = "Mantis BT Bridge";
 	$zing_bt_shortname = "zing_bt";
 
 	$zing_bt_options[] = array(  "name" => "Integration Settings",
             "type" => "heading",
-			"desc" => "This section customizes the way ccTracker interacts with Wordpress.");
+			"desc" => "This section customizes the way Mantis Bug Tracker Bridge interacts with Wordpress.");
+	$zing_bt_options[] = array(	"name" => "Root URL",
+			"desc" => "Specify the Mantis BT domain, e.g. http://www.example.org.",
+			"id" => $zing_bt_shortname."_url",
+			"type" => "text");
+	$zing_bt_options[] = array(	"name" => "Subdirectory",
+			"desc" => "If you installed Mantis BT in a subdirectory of the URL specified here above, enter the domain, e.g. subdir.",
+			"id" => $zing_bt_shortname."_subdir",
+			"type" => "text");
 	$zing_bt_options[] = array(	"name" => "Footer",
-			"desc" => "Specify where you want our footer to appear. If you disable the footer here,<br />we count on you to link back to our site some other way.",
+			"desc" => "If you like the plugin and want to support our developers, please activate the footer here.",
 			"id" => $zing_bt_shortname."_footer",
-			"std" => 'Page',
+			"std" => 'None',
 			"type" => "select",
 			"options" => array('Site','Page','None'));
 
@@ -23,9 +31,9 @@ function zing_bt_add_admin() {
 
 	$zing_bt_options=zing_bt_options();
 
-	if ( $_GET['page'] == "bug-tracker-cp" ) {
+	if ( isset($_GET['page']) && $_GET['page'] == "bug-tracker-cp" ) {
 
-		if ( 'install' == $_REQUEST['action'] ) {
+		if ( isset($_REQUEST['action']) && 'install' == $_REQUEST['action'] ) {
 			foreach ($zing_bt_options as $value) {
 				update_option( $value['id'], $_REQUEST[ $value['id'] ] );
 			}
@@ -36,15 +44,17 @@ function zing_bt_add_admin() {
 				} else { delete_option( $value['id'] );
 				}
 			}
+			/*
 			if (zing_bt_install()) {
 				$btusers=new btusers();
 				$btusers->sync();
 			}
+			*/
 			header("Location: options-general.php?page=bug-tracker-cp&installed=true");
 			die;
 		}
 
-		if( 'uninstall' == $_REQUEST['action'] ) {
+		if( isset($_REQUEST['action']) && 'uninstall' == $_REQUEST['action'] ) {
 			zing_bt_uninstall();
 			foreach ($zing_bt_options as $value) {
 				delete_option( $value['id'] );
@@ -55,9 +65,7 @@ function zing_bt_add_admin() {
 		}
 	}
 
-	add_menu_page($zing_bt_name, $zing_bt_name, 'administrator', 'bug-tracker-cp','zing_bt_admin');
-	add_submenu_page('bug-tracker-cp', $zing_bt_name.'- Integration', 'Integration', 'administrator', 'bug-tracker-cp', 'zing_bt_admin');
-	//if (get_option("zing_bt_version")) add_submenu_page('bug-tracker-cp', $zing_bt_name.'- Administration', 'Administration', 'administrator', 'bug-tracker-admin', 'zing_mantisbt_admin');
+	add_options_page($zing_bt_name, $zing_bt_name, 'manage_options', 'bug-tracker-cp', 'zing_bt_admin');
 
 }
 
@@ -86,8 +94,8 @@ function zing_bt_admin() {
 
 	$zing_bt_options=zing_bt_options();
 
-	if ( $_REQUEST['installed'] ) echo '<div id="message" class="updated fade"><p><strong>'.$zing_bt_name.' installed.</strong></p></div>';
-	if ( $_REQUEST['uninstalled'] ) echo '<div id="message" class="updated fade"><p><strong>'.$zing_bt_name.' uninstalled.</strong></p></div>';
+	if ( isset($_REQUEST['installed']) && $_REQUEST['installed'] ) echo '<div id="message" class="updated fade"><p><strong>'.$zing_bt_name.' installed.</strong></p></div>';
+	if ( isset($_REQUEST['uninstalled']) && $_REQUEST['uninstalled'] ) echo '<div id="message" class="updated fade"><p><strong>'.$zing_bt_name.' uninstalled.</strong></p></div>';
 
 	?>
 <div class="wrap">
@@ -114,93 +122,18 @@ function zing_bt_admin() {
 		echo 'Please proceed with a clean install or deactivate your plugin';
 		$submit='Install';
 	} elseif ($zing_bt_version != ZING_BT_VERSION) {
-		echo 'You downloaded version '.ZING_BT_VERSION.' and need to upgrade your database (currently at version '.$zing_bt_version.') by clicking Upgrade below.';
+		echo 'You downloaded version '.ZING_BT_VERSION.' and need to upgrade your settings (currently at version '.$zing_bt_version.') by clicking Upgrade below.';
 		$submit='Upgrade';
 	} elseif ($zing_bt_version == ZING_BT_VERSION) {
-		echo 'Your version is up to date!';
 		$submit='Update';
 	}
 
 	//if (count($zing_errors)==0) {
+$controlpanelOptions=$zing_bt_options;
 	?>
 <form method="post">
 
-<table class="optiontable">
-
-<?php if ($zing_bt_options) foreach ($zing_bt_options as $value) {
-
-	if ($value['type'] == "text") { ?>
-
-	<tr align="left">
-		<th scope="row"><?php echo $value['name']; ?>:</th>
-		<td><input name="<?php echo $value['id']; ?>" id="<?php echo $value['id']; ?>"
-			type="<?php echo $value['type']; ?>"
-			value="<?php if ( get_settings( $value['id'] ) != "") { echo get_settings( $value['id'] ); } else { echo $value['std']; } ?>"
-			size="40"
-		/></td>
-
-	</tr>
-	<tr>
-		<td colspan=2><small><?php echo $value['desc']; ?> </small>
-		<hr />
-		</td>
-	</tr>
-
-	<?php } elseif ($value['type'] == "textarea") { ?>
-	<tr align="left">
-		<th scope="row"><?php echo $value['name']; ?>:</th>
-		<td><textarea name="<?php echo $value['id']; ?>" id="<?php echo $value['id']; ?>" cols="50"
-			rows="8"
-		/>
-		<?php if ( get_settings( $value['id'] ) != "") { echo stripslashes (get_settings( $value['id'] )); }
-		else { echo $value['std'];
-		} ?>
-</textarea></td>
-
-	</tr>
-	<tr>
-		<td colspan=2><small><?php echo $value['desc']; ?> </small>
-		<hr />
-		</td>
-	</tr>
-
-	<?php } elseif ($value['type'] == "select") { ?>
-
-	<tr align="left">
-		<th scope="top"><?php echo $value['name']; ?>:</th>
-		<td><select name="<?php echo $value['id']; ?>" id="<?php echo $value['id']; ?>">
-		<?php foreach ($value['options'] as $option) { ?>
-			<option <?php if ( get_settings( $value['id'] ) == $option) { echo ' selected="selected"'; }?>><?php echo $option; ?></option>
-			<?php } ?>
-		</select></td>
-
-	</tr>
-	<tr>
-		<td colspan=2><small><?php echo $value['desc']; ?> </small>
-		<hr />
-		</td>
-	</tr>
-
-	<?php } elseif ($value['type'] == "heading") { ?>
-
-	<tr valign="top">
-		<td colspan="2" style="text-align: left;">
-		<h2 style="color: green;"><?php echo $value['name']; ?></h2>
-		</td>
-	</tr>
-	<tr>
-		<td colspan=2><small>
-		<p style="color: red; margin: 0 0;"><?php echo $value['desc']; ?></P>
-		</small>
-		<hr />
-		</td>
-	</tr>
-
-	<?php } ?>
-	<?php
-}
-?>
-</table>
+<?php require(dirname(__FILE__).'/includes/cpedit.inc.php');?>
 
 <p class="submit"><input name="install" type="submit" value="<?php echo $submit;?>" /> <input
 	type="hidden" name="action" value="install"
@@ -216,9 +149,8 @@ function zing_bt_admin() {
 </form>
 <?php } ?>
 <hr />
-<img src="<?php echo ZING_BT_URL?>/choppedcode.png" height="50px" />
-<p>For more info and support, contact us at <a href="http://www.choppedcode.com">ChoppedCode</a> or check
-out our <a href="http://forums.choppedcode.com">support forums</a>.</p>
+<p>For any support queries, contact us via our <a href="http://forums.zingiri.com/forumdisplay.php?fid=73">support forums</a>.</p>
+<img src="<?php echo ZING_BT_URL?>images/logo.png" />
 <?php
 }
 add_action('admin_menu', 'zing_bt_add_admin'); ?>

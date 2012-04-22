@@ -1,38 +1,38 @@
-=== ccTracker ===
-Contributors: EBO
-Donate link: http://www.choppedcode.com/
-Tags: issue tracker, bug tracker, changelog, Mantis, roadmap, tracker, change log
+=== Mantis Bug Tracker Bridge ===
+Contributors: Zingiri
+Donate link: http://www.zingiri.com/
+Tags: issue tracker, bug tracker, changelog, Mantis, roadmap, tracker, change log, mantis bug tracker, mantis bug tracker bridge, mantis bug tracker wordpress, mantis bt wordpress bridge
 Requires at least: 2.1.7
-Tested up to: 3.2.1
-Stable tag: 1.0.1
+Tested up to: 3.3.2
+Stable tag: 1.1.0
 
-ccTracker is a plugin that integrates the powerfull Mantis Bug Tracker software with Wordpress.
+Mantis Bug Tracker Bridge is a plugin that integrates the powerfull Mantis Bug Tracker software with Wordpress.
+
 == Description ==
 
-ccTracker is a plugin that integrates the powerfull Mantis Bug Tracker board software with Wordpress. It brings one of the most powerfull free bug tracking softwares in reach of Wordpress users.
+Mantis Bug Tracker Bridge is a plugin that integrates the powerfull Mantis Bug Tracker board software with Wordpress. It brings one of the most powerfull free bug tracking softwares in reach of Wordpress users.
 
-[MantisBT](http://www.mantisbt.org/ "Mantis") is a free popular  web-based bugtracking system.
+[MantisBT](http://www.mantisbt.org/ "Mantis") is a free popular web-based bugtracking system.
 
 WordPress ... well you know.
 
-ccTracker provides the glue to connect both providing a fully functional proven bug and issue tracking solution. 
+Mantis Bug Tracker Bridge provides the glue to connect both providing a fully functional proven bug and issue tracking solution. 
 
 == Installation ==
 
 1. Upload the `bug-tracker` folder to the `/wp-content/plugins/` directory
-2. Ensure the directory /bug-tracker/cache is writable (chmod 777)
-3. Activate the plugin through the 'Plugins' menu in WordPress
-4. Go to the Wordpress Settings page and find the link to the Admininistration Panel of ccTracker, login with the default user admin and password admin.
+2. Activate the plugin through the 'Plugins' menu in WordPress
+3. Go to the Wordpress Settings page and enter the URL to your installation of Mantis Bug Tracker, as well as the subdirectory of your installation if any.
 
-Please visit the [ChoppedCode](http://forums.choppedcode.com/forumdisplay.php?fid=23 "ChoppedCode Support Forum") for more information and support.
+Please visit the [Zingiri](http://forums.zingiri.com/forumdisplay.php?fid=73 "Zingiri Support Forum") for more information and support.
 
 == Frequently Asked Questions ==
 
-Please visit the [ChoppedCode](http://forums.choppedcode.com/forumdisplay.php?fid=23 "ChoppedCode Support Forum") for more information and support.
+Please visit the [Zingiri](http://forums.zingiri.com/forumdisplay.php?fid=73 "Zingiri Support Forum") for more information and support.
 
 == Screenshots ==
 
-Please visit the [ChoppedCode](http://choppedcode.com/demo/forum "ChoppedCode") website for a Demo.
+Non available yet.
 
 == Upgrade Notice ==
 
@@ -44,6 +44,12 @@ A small number of MantisBT files have been modified. ALl the changes are marked 
 
 
 == Changelog ==
+
+= 1.1.0 =
+* Allows to connect to any Mantis BT installation now
+* Removed included Mantis BT package
+* Compatibility with Wordpress 3.3.2
+* Clean up minor errors in code
 
 = 1.0.1 =
 * Fixed issue with cleaning of cache directory
@@ -58,7 +64,7 @@ A small number of MantisBT files have been modified. ALl the changes are marked 
 
 = 0.4 =
 * Fixed issues wrongly resolving link issues
-* Renamed to ccTracker
+* Renamed to Mantis Bug Tracker Bridge
 
 = 0.3 =
 * Updated MantisBT hacks section

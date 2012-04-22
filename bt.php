@@ -1,18 +1,15 @@
 <?php
 /*
- Plugin Name: ccTracker
- Plugin URI: http://www.choppedcode.com
- Description: ccTracker is a plugin that integrates the powerfull Mantis bug tracker software with Wordpress. It brings one of the most bug tracking softwares in reach of Wordpress users.
+ Plugin Name: Mantis Bug Tracker Bridge
+ Plugin URI: http://www.zingiri.com
+ Description: Mantis Bug Tracker Bridge is a plugin that integrates the powerfull Mantis bug tracker software with Wordpress. It brings one of the most bug tracking softwares in reach of Wordpress users.
 
  Author: EBO
- Version: 1.0.1
- Author URI: http://www.choppedcode.com/
+ Version: 1.1.0
+ Author URI: http://www.zingiri.com/
  */
 
-//error_reporting(E_ALL & ~E_NOTICE);
-//ini_set('display_errors', '1');
-
-define("ZING_BT_VERSION","1.0.1");
+define("ZING_BT_VERSION","1.1.0");
 define("ZING_MANTIS","mantisbt");
 define("ZING_MANTIS_VERSION","1.2.2");
 
@@ -31,7 +28,9 @@ if (!defined("ZING_BT_PLUGIN")) {
 }
 define("ZING_BT_URL", WP_CONTENT_URL . "/plugins/".ZING_BT_PLUGIN."/");
 
-define("ZING_MANTIS_URL",ZING_BT_URL.ZING_MANTIS);
+
+define("ZING_MANTIS_SELF",str_replace('//','/','/'.get_option('zing_bt_subdir').'/'));
+define("ZING_MANTIS_URL",get_option('zing_bt_url').ZING_MANTIS_SELF);
 
 $zing_bt_version=get_option("zing_bt_version");
 if ($zing_bt_version) {
@@ -61,32 +60,14 @@ require_once(dirname(__FILE__) . '/includes/btusers.class.php');
 $zErrorLog=new zErrorLog();
 
 function zing_bt_check() {
-	
-	global $wpdb;
 	$errors=array();
 	$warnings=array();
 	$files=array();
 	$dirs=array();
 
-	$files[]=dirname(__FILE__).'/log.txt';
-	foreach ($files as $file) {
-		if (!is_writable($file)) $warnings[]='File '.$file.' is not writable, please chmod to 666';
-	}
-
-	$dirs[]=dirname(__FILE__).'/cache';
-	$dirs[]=dirname(__FILE__).'/mantisbt';
-	foreach ($dirs as $file) {
-		if (!is_writable($file)) $errors[]='Directory '.$file.' is not writable, please chmod to 777';
-	}
-
 	if (phpversion() < '5')	$warnings[]="You are running PHP version ".phpversion().". We recommend you upgrade to PHP 5.3 or higher.";
 	if (ini_get("zend.ze1_compatibility_mode")) $warnings[]="You are running PHP in PHP 4 compatibility mode. We recommend you turn this option off.";
 	if (!function_exists('curl_init')) $errors[]="You need to have cURL installed. Contact your hosting provider to do so.";
-	else {
-		ob_start();
-		$c=new HTTPRequest(ZING_MANTIS_URL.'/connect.php');
-		if (!$c->checkConnection()) $errors[]='Can\'t connect to BT sub folders, please check your .htaccess file.';
-	}
 	if (!session_id()) $errors[]='Sessions are not working on your installation, make sure they are turned on.';
 	return array('errors'=> $errors, 'warnings' => $warnings);
 }
@@ -122,13 +103,13 @@ function zing_bt_install() {
 	//first installation of BT
 	if (!$zing_bt_version) {
 		$zErrorLog->msg('Install bug tracker');
-		zing_bt_mantisbt_install();
+		//zing_bt_mantisbt_install();
 		update_option("zing_mantisbt_version",ZING_MANTIS_VERSION);
 	}
 	//upgrade BT if needed
 	elseif (get_option("zing_mantisbt_version") != ZING_MANTIS_VERSION) {
 		$zErrorLog->msg('Upgrade forum');
-		zing_bt_mantisbt_upgrade();
+		//zing_bt_mantisbt_upgrade();
 		update_option("zing_mantisbt_version",ZING_MANTIS_VERSION);
 	}
 
@@ -166,9 +147,9 @@ function zing_bt_install() {
 	if (get_option('zing_bt_mantisbt_dbname')) $wpdb->select(get_option('zing_bt_mantisbt_dbname'));
 
 	//set default admin to current CMS admin
-	$query2="UPDATE `".$prefix."user_table` SET `username`='".$current_user->data->user_login."' WHERE `username`='administrator'";
-	$zErrorLog->msg($query2);
-	$wpdb->query($query2);
+	//$query2="UPDATE `".$prefix."user_table` SET `username`='".$current_user->data->user_login."' WHERE `username`='administrator'";
+	//$zErrorLog->msg($query2);
+	//$wpdb->query($query2);
 
 	if (get_option('zing_bt_mantisbt_dbname')) $wpdb->select(DB_NAME);
 
@@ -200,7 +181,7 @@ function zing_bt_mantisbt_install() {
 
 	$http=zing_bt_http("mantisbt",'admin/install.php');
 	$zErrorLog->msg($http);
-	$news = new HTTPRequest($http);
+	$news = new btHTTPRequest($http);
 	$news->post=$post;
 	if ($news->live()) {
 		$output=$news->DownloadToString(true,false);
@@ -208,8 +189,8 @@ function zing_bt_mantisbt_install() {
 	}
 
 	//allow anonymous access
-	$zErrorLog->msg('create anonymous user');
-	createBugTrackerUser('anonymous','','anonymous@localhost');
+	//$zErrorLog->msg('create anonymous user');
+	//createBugTrackerUser('anonymous','','anonymous@localhost');
 	//$current_user->data->user_email
 }
 
@@ -229,12 +210,14 @@ function zing_bt_deactivate() {
  */
 function zing_bt_uninstall() {
 	global $wpdb;
+	/*
 	$prefix=$wpdb->prefix."mantis";
 	$rows=$wpdb->get_results("show tables like '".$prefix."%'",ARRAY_N);
 	foreach ($rows as $id => $row) {
 		$query="drop table ".$row[0];
 		$wpdb->query($query);
 	}
+	*/
 	$ids=get_option("zing_bt_pages");
 	$ida=explode(",",$ids);
 	foreach ($ida as $id) {
@@ -243,8 +226,8 @@ function zing_bt_uninstall() {
 	delete_option("zing_bt_version");
 	delete_option("zing_bt_pages");
 	delete_option("zing_mantisbt_version");
-	$fh = fopen(dirname(__FILE__).'/'.ZING_MANTIS.'/inc/settings.php', 'w');
-	fclose($fh);
+	//$fh = fopen(dirname(__FILE__).'/'.ZING_MANTIS.'/inc/settings.php', 'w');
+	//fclose($fh);
 }
 
 /**
@@ -262,7 +245,7 @@ function zing_bt_main($process,$content="") {
 			die('redirect1');
 		}
 		else {
-			if ($_GET['action']=='logout') {
+			if (isset($_GET['action']) && $_GET['action']=='logout') {
 				unset($_SESSION['tmpfile']);
 			}
 			$content=$zing_bt_content;
@@ -306,17 +289,17 @@ function zing_bt_output($process) {
 			}
 			else
 			{
-				return $content;
+				return;
 			}
 			if (isset($cf['cat'])) {
 				$_GET['cat']=$cf['cat'][0];
 			}
 			break;
 	}
-	if (strstr($zing_bt_to_include,'archive/index.php/')) $http=zing_bt_http("mantisbt",$zing_bt_to_include,$page);
-	else $http=zing_bt_http("mantisbt",$zing_bt_to_include.'.php',$page);
+	if (strstr($zing_bt_to_include,'archive/index.php/')) $http=zing_bt_http("mantisbt",$zing_bt_to_include);
+	else $http=zing_bt_http("mantisbt",$zing_bt_to_include.'.php');
 	//echo '<br />'.$http.'<br />';
-	$news = new HTTPRequest($http);
+	$news = new btHTTPRequest($http);
 
 	$news->post=$_POST;
 	if (isset($_POST['bt_name'])) {
@@ -329,20 +312,12 @@ function zing_bt_output($process) {
 	else {
 		$output=$news->DownloadToString(true,false);
 		$output=zing_bt_ob($output);
-		if ($news->redirect) {
-			$f[]='/Location: '.preg_quote(ZING_MANTIS_URL.'/','/').'(.*?).php\?(.*?)'.'/';
-			$r[]='Location: '.get_option('home').'/index.php?page_id='.zing_bt_mainpage().'&zbt=$1&$2';
-			$f[]='/Location: '.preg_quote(ZING_MANTIS_URL.'/','/').'(.*?).php'.'/';
-			$r[]='Location: '.get_option('home').'/index.php?page_id='.zing_bt_mainpage().'&zbt=$1';
-			$output=preg_replace($f,$r,$output,-1,$count);
-			
-			header($output);
-			die();
-		}
 		if (empty($output)) {
-			return 'redirect';
+			return 'An error occured: Empty output';
 		}
-		else return '<!--forum:start--><div><br /></div>'.$output.'<!--forum:end-->';
+		else {
+			return '<!--mbt:start-->'.$output.'<!--mbt:end-->';
+		}
 	}
 }
 
@@ -351,7 +326,7 @@ function zing_bt_http($module,$to_include="index",$page="",$key="") {
 
 	$vars="";
 	if (!$to_include) $to_include="index";
-	$http=ZING_MANTIS_URL.'/';
+	$http=ZING_MANTIS_URL;
 	$http.= $to_include;
 	$and="";
 	if (count($_GET) > 0) {
@@ -412,10 +387,8 @@ function zing_bt_mainpage() {
 }
 function zing_bt_ob($buffer) {
 	global $zing_bt_mode,$wpdb;
-	$self=str_replace('index.php','',$_SERVER['PHP_SELF']);
-	$loc='http://'.$_SERVER['SERVER_NAME'];
-	$mantisbtself=str_replace($loc,'',ZING_MANTIS_URL).'/';
-	$mantisbtfull=ZING_MANTIS_URL.'/';
+	$mantisbtself=ZING_MANTIS_SELF;
+	$mantisbtfull=ZING_MANTIS_URL;
 	$home=get_option("home")."/";
 	$admin=get_option('siteurl').'/wp-admin/';
 	$ids=get_option("zing_bt_pages");
@@ -423,18 +396,17 @@ function zing_bt_ob($buffer) {
 	$pid=zing_bt_mainpage();
 
 	//css
-	$buffer=str_replace(get_option('home').'css/default.css',ZING_BT_URL.'css/default.css',$buffer);
+	$buffer=str_replace($mantisbtfull.'css/default.css',ZING_BT_URL.'css/default.css',$buffer);
 
-	// replace by zing_integrator_tags($buffer,$bodyclass)
 	//page header & footer
 	$tagslist='head';
 	$tags=explode(',',$tagslist);
 	foreach ($tags as $tag)
 	{
-		$buffer=str_replace('<'.$tag,'<div id="zing'.$tag.'"',$buffer);
+		$buffer=str_replace('<'.$tag,'<div id="mbt'.$tag.'"',$buffer);
 		$buffer=str_replace($tag.'>','div>',$buffer);
 	}
-	$buffer=str_replace('<body','<div class="zingbody"',$buffer);
+	$buffer=str_replace('<body','<div class="mbtbody"',$buffer);
 	$buffer=str_replace('body>','div>',$buffer);
 
 	$buffer=preg_replace('/<html.*>/','',$buffer);
@@ -444,22 +416,14 @@ function zing_bt_ob($buffer) {
 	$buffer=preg_replace('/<.DOCTYPE.*>/','',$buffer);
 
 	if ($zing_bt_mode=="client") {
-		$f[]='/thisshouldneveroccur/';
-		$r[]='';
-		
 		$f[]='/src\="'.preg_quote('images/','/').'(.*?)"/';
 		$r[]='src="'.ZING_MANTIS_URL.'/images/$1"';
-		
-		//$f[]='/"'.preg_quote($mantisbtself,'/').'(.*?).php\?(.*?)"'.'/';
-		//$r[]='"'.$home.'index.php?page_id='.$pid.'&zbt=$1&$2"';
-		//$f[]='/"'.preg_quote($mantisbtself,'/').'(.*?).php"'.'/';
-		//$r[]='"'.$home.'index.php?page_id='.$pid.'&zbt=$1"';
 		
 		$f[]='/href\="'.preg_quote($mantisbtself,'/').'(.*?).php\?(.*?)"'.'/';
 		$r[]='href="'.$home.'index.php?page_id='.$pid.'&zbt=$1&$2"';
 		$f[]='/href\="'.preg_quote($mantisbtself,'/').'(.*?).php"'.'/';
 		$r[]='href="'.$home.'index.php?page_id='.$pid.'&zbt=$1"';
-		
+
 		$f[]='/href\="'.preg_quote($mantisbtfull,'/').'(.*?).php"'.'/';
 		$r[]='href="'.$home.'index.php?page_id='.$pid.'&zbt=$1"';
 		$f[]='/href\="'.preg_quote($mantisbtfull,'/').'(.*?).php\?(.*?)"'.'/';
@@ -471,20 +435,14 @@ function zing_bt_ob($buffer) {
 		$f[]='/"([a-zA-Z\_]*?).php\"/';
 		$r[]='"'.$home.'index.php?page_id='.$pid.'&zbt=$1"';
 			
-		//$f[]='/"'.preg_quote($mantisbtself,'/').'([a-z_]*?)"'.'/';
-		//$r[]='"'.$home.'index.php?page_id='.$pid.'&zbt=$1"';
-
-		//$f[]='/action\="([a-zA-Z\_]*?)"/';
-		//$r[]='action="'.$home.'index.php?page_id='.$pid.'&zbt=$1"';
 		$f[]='/action\="'.preg_quote($mantisbtself,'/').'(.*?).php"'.'/';
 		$r[]='action="'.$home.'index.php?page_id='.$pid.'&zbt=$1"';
 		$f[]='/action\="'.preg_quote($mantisbtself,'/').'(.*?).php\?(.*?)"'.'/';
 		$r[]='action="'.$home.'index.php?page_id='.$pid.'&zbt=$1&$2"';
 		
-		
 		//replacement issue with src="/wordpress/wp-content/plugins/bug-tracker/mantisbt/images/rss.png" alt="RSS"
 		$buffer=preg_replace($f,$r,$buffer,-1,$count);
-
+		
 		$buffer=str_replace('name="name"','name="bt_name"',$buffer);
 	} else {
 		//admin pages
@@ -515,19 +473,19 @@ function zing_bt_init()
 
 function zing_bt_login() {
 	global $current_user;
-	if (is_user_logged_in()) {
-		zing_bt_login_user($current_user->data->user_login,$current_user->data->user_pass);
-	} else {
+	//if (is_user_logged_in()) {
+	//	zing_bt_login_user($current_user->data->user_login,$current_user->data->user_pass);
+	//} else {
 		zing_bt_login_anonymous();
-	}
+	//}
 }
 
 function zing_bt_login_anonymous() {
 	$post['username']='anonymous';
 	//$post['password']='anonymous';
 	$post['secure_session']="1";
-	$http=zing_bt_http("mantisbt",'login.php');
-	$news = new HTTPRequest($http);
+	$http=zing_bt_http("mantisbt",'login_page.php');
+	$news = new btHTTPRequest($http);
 	$news->post=$post;
 	if ($news->live()) {
 		$output=$news->DownloadToString(true,false);
@@ -542,7 +500,7 @@ function zing_bt_login_user($login,$password) {
 	if ($password) $post['password']=btPassword($password);
 	$post['secure_session']="1";
 	$http=zing_bt_http("mantisbt",'login.php');
-	$news = new HTTPRequest($http);
+	$news = new btHTTPRequest($http);
 	$news->post=$post;
 	if ($news->live()) {
 		$output=$news->DownloadToString(true,false);
@@ -559,7 +517,7 @@ function zing_bt_login_admin() {
 	$post['password']=zing_bt_admin_password();
 	$post['secure_session']="1";
 	$http=zing_bt_http("mantisbt",'login.php');
-	$news = new HTTPRequest($http);
+	$news = new btHTTPRequest($http);
 	$news->post=$post;
 	if ($news->live()) {
 		$output=$news->DownloadToString(true,false);
