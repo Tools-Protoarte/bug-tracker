@@ -3,8 +3,8 @@ Contributors: Zingiri
 Donate link: http://www.zingiri.com/
 Tags: issue tracker, bug tracker, changelog, Mantis, roadmap, tracker, change log, mantis bug tracker, mantis bug tracker bridge, mantis bug tracker wordpress, mantis bt wordpress bridge
 Requires at least: 2.1.7
-Tested up to: 3.3.2
-Stable tag: 1.1.0
+Tested up to: 3.4.1
+Stable tag: 1.2.0
 
 Mantis Bug Tracker Bridge is a plugin that integrates the powerfull Mantis Bug Tracker software with Wordpress.
 
@@ -44,6 +44,12 @@ A small number of MantisBT files have been modified. ALl the changes are marked 
 
 
 == Changelog ==
+
+= 1.2.0 =
+* Minor updates to plugin description
+* Fixed activation issue
+* Checked compatibility with WP 3.4.1
+* Added verification of syntax of URL and subdirectory
 
 = 1.1.0 =
 * Allows to connect to any Mantis BT installation now

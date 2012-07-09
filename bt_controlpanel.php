@@ -44,12 +44,12 @@ function zing_bt_add_admin() {
 				} else { delete_option( $value['id'] );
 				}
 			}
-			/*
 			if (zing_bt_install()) {
-				$btusers=new btusers();
-				$btusers->sync();
+				//				$btusers=new btusers();
+				//				$btusers->sync();
+				if (substr(get_option('zing_bt_url'),-1)!='/') update_option('zing_bt_url',get_option('zing_bt_url').'/');
+				if (substr(get_option('zing_bt_subdir'),-1)!='/') update_option('zing_bt_subdir',get_option('zing_bt_subdir').'/');
 			}
-			*/
 			header("Location: options-general.php?page=bug-tracker-cp&installed=true");
 			die;
 		}
@@ -99,7 +99,9 @@ function zing_bt_admin() {
 
 	?>
 <div class="wrap">
-<h2><b><?php echo $zing_bt_name; ?></b></h2>
+	<h2>
+		<b><?php echo $zing_bt_name; ?> </b>
+	</h2>
 
 	<?php
 	$zing_ew=zing_bt_check();
@@ -129,28 +131,35 @@ function zing_bt_admin() {
 	}
 
 	//if (count($zing_errors)==0) {
-$controlpanelOptions=$zing_bt_options;
+	$controlpanelOptions=$zing_bt_options;
 	?>
-<form method="post">
+	<form method="post">
 
-<?php require(dirname(__FILE__).'/includes/cpedit.inc.php');?>
+	<?php require(dirname(__FILE__).'/includes/cpedit.inc.php');?>
 
-<p class="submit"><input name="install" type="submit" value="<?php echo $submit;?>" /> <input
-	type="hidden" name="action" value="install"
-/></p>
-</form>
-<?php //}?> <?php if ($zing_bt_version) { ?>
-</form>
-<hr />
-<form method="post">
-<p class="submit"><input name="uninstall" type="submit" value="Uninstall" /> <input type="hidden"
-	name="action" value="uninstall"
-/></p>
-</form>
-<?php } ?>
-<hr />
-<p>For any support queries, contact us via our <a href="http://forums.zingiri.com/forumdisplay.php?fid=73">support forums</a>.</p>
-<img src="<?php echo ZING_BT_URL?>images/logo.png" />
-<?php
+		<p class="submit">
+			<input name="install" type="submit" value="<?php echo $submit;?>" /> <input type="hidden"
+				name="action" value="install"
+			/>
+		</p>
+	</form>
+	<?php if ($zing_bt_version) { ?>
+	<hr />
+	<form method="post">
+		<p class="submit">
+			<input name="uninstall" type="submit" value="Uninstall" /> <input type="hidden" name="action"
+				value="uninstall"
+			/>
+		</p>
+	</form>
+	<?php } ?>
+	<hr />
+	<p>
+		For any support queries, contact us via our <a
+			href="http://forums.zingiri.com/forumdisplay.php?fid=73"
+		>support forums</a>.
+	</p>
+	<img src="<?php echo ZING_BT_URL?>images/logo.png" />
+	<?php
 }
 add_action('admin_menu', 'zing_bt_add_admin'); ?>

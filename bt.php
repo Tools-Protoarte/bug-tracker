@@ -2,14 +2,14 @@
 /*
  Plugin Name: Mantis Bug Tracker Bridge
  Plugin URI: http://www.zingiri.com
- Description: Mantis Bug Tracker Bridge is a plugin that integrates the powerfull Mantis bug tracker software with Wordpress. It brings one of the most bug tracking softwares in reach of Wordpress users.
+ Description: Mantis Bug Tracker Bridge is a plugin that integrates the powerfull Mantis bug tracker software with Wordpress. It brings one of the most powerfull bug tracking softwares in reach of Wordpress users.
 
- Author: EBO
- Version: 1.1.0
+ Author: Zingiri
+ Version: 1.2.0
  Author URI: http://www.zingiri.com/
  */
 
-define("ZING_BT_VERSION","1.1.0");
+define("ZING_BT_VERSION","1.2.0");
 define("ZING_MANTIS","mantisbt");
 define("ZING_MANTIS_VERSION","1.2.2");
 
@@ -29,7 +29,7 @@ if (!defined("ZING_BT_PLUGIN")) {
 define("ZING_BT_URL", WP_CONTENT_URL . "/plugins/".ZING_BT_PLUGIN."/");
 
 
-define("ZING_MANTIS_SELF",str_replace('//','/','/'.get_option('zing_bt_subdir').'/'));
+define("ZING_MANTIS_SELF",get_option('zing_bt_subdir'));
 define("ZING_MANTIS_URL",get_option('zing_bt_url').ZING_MANTIS_SELF);
 
 $zing_bt_version=get_option("zing_bt_version");
