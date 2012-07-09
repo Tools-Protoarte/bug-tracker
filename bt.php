@@ -5,11 +5,11 @@
  Description: Mantis Bug Tracker Bridge is a plugin that integrates the powerfull Mantis bug tracker software with Wordpress. It brings one of the most powerfull bug tracking softwares in reach of Wordpress users.
 
  Author: Zingiri
- Version: 1.2.0
+ Version: 1.2.1
  Author URI: http://www.zingiri.com/
  */
 
-define("ZING_BT_VERSION","1.2.0");
+define("ZING_BT_VERSION","1.2.1");
 define("ZING_MANTIS","mantisbt");
 define("ZING_MANTIS_VERSION","1.2.2");
 
@@ -27,7 +27,6 @@ if (!defined("ZING_BT_PLUGIN")) {
 	define("ZING_BT_PLUGIN", $zing_bt_plugin);
 }
 define("ZING_BT_URL", WP_CONTENT_URL . "/plugins/".ZING_BT_PLUGIN."/");
-
 
 define("ZING_MANTIS_SELF",get_option('zing_bt_subdir'));
 define("ZING_MANTIS_URL",get_option('zing_bt_url').ZING_MANTIS_SELF);
@@ -387,7 +386,7 @@ function zing_bt_mainpage() {
 }
 function zing_bt_ob($buffer) {
 	global $zing_bt_mode,$wpdb;
-	$mantisbtself=ZING_MANTIS_SELF;
+	$mantisbtself=str_replace('//','/','/'.ZING_MANTIS_SELF);
 	$mantisbtfull=ZING_MANTIS_URL;
 	$home=get_option("home")."/";
 	$admin=get_option('siteurl').'/wp-admin/';
@@ -395,6 +394,7 @@ function zing_bt_ob($buffer) {
 	$ida=explode(",",$ids);
 	$pid=zing_bt_mainpage();
 
+	echo 'self='.$mantisbtself.'<br />';
 	//css
 	$buffer=str_replace($mantisbtfull.'css/default.css',ZING_BT_URL.'css/default.css',$buffer);
 
