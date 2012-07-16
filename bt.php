@@ -5,11 +5,11 @@
  Description: Mantis Bug Tracker Bridge is a plugin that integrates the powerfull Mantis bug tracker software with Wordpress. It brings one of the most powerfull bug tracking softwares in reach of Wordpress users.
 
  Author: Zingiri
- Version: 1.2.1
+ Version: 1.2.2
  Author URI: http://www.zingiri.com/
  */
 
-define("ZING_BT_VERSION","1.2.1");
+define("ZING_BT_VERSION","1.2.2");
 define("ZING_MANTIS","mantisbt");
 define("ZING_MANTIS_VERSION","1.2.2");
 
@@ -39,7 +39,7 @@ if ($zing_bt_version) {
 	add_action('wp_head','zing_bt_header');
 	add_action('wp_login','zing_bt_login');
 	add_action('wp_logout','zing_bt_logout');
-	
+
 	add_filter('check_password','zing_bt_check_password',10,4);
 	add_action('profile_update','zing_bt_profile_update'); //post wp update
 	add_action('user_register','zing_bt_user_register'); //post wp update
@@ -210,13 +210,13 @@ function zing_bt_deactivate() {
 function zing_bt_uninstall() {
 	global $wpdb;
 	/*
-	$prefix=$wpdb->prefix."mantis";
-	$rows=$wpdb->get_results("show tables like '".$prefix."%'",ARRAY_N);
-	foreach ($rows as $id => $row) {
+	 $prefix=$wpdb->prefix."mantis";
+	 $rows=$wpdb->get_results("show tables like '".$prefix."%'",ARRAY_N);
+	 foreach ($rows as $id => $row) {
 		$query="drop table ".$row[0];
 		$wpdb->query($query);
-	}
-	*/
+		}
+		*/
 	$ids=get_option("zing_bt_pages");
 	$ida=explode(",",$ids);
 	foreach ($ida as $id) {
@@ -394,7 +394,6 @@ function zing_bt_ob($buffer) {
 	$ida=explode(",",$ids);
 	$pid=zing_bt_mainpage();
 
-	echo 'self='.$mantisbtself.'<br />';
 	//css
 	$buffer=str_replace($mantisbtfull.'css/default.css',ZING_BT_URL.'css/default.css',$buffer);
 
@@ -418,7 +417,7 @@ function zing_bt_ob($buffer) {
 	if ($zing_bt_mode=="client") {
 		$f[]='/src\="'.preg_quote('images/','/').'(.*?)"/';
 		$r[]='src="'.ZING_MANTIS_URL.'/images/$1"';
-		
+
 		$f[]='/href\="'.preg_quote($mantisbtself,'/').'(.*?).php\?(.*?)"'.'/';
 		$r[]='href="'.$home.'index.php?page_id='.$pid.'&zbt=$1&$2"';
 		$f[]='/href\="'.preg_quote($mantisbtself,'/').'(.*?).php"'.'/';
@@ -428,10 +427,10 @@ function zing_bt_ob($buffer) {
 		$r[]='href="'.$home.'index.php?page_id='.$pid.'&zbt=$1"';
 		$f[]='/href\="'.preg_quote($mantisbtfull,'/').'(.*?).php\?(.*?)"'.'/';
 		$r[]='href="'.$home.'index.php?page_id='.$pid.'&zbt=$1&$2"';
-		
+
 		$f[]='/"([a-zA-Z\_]*?).php\?/';
 		$r[]='"'.$home.'index.php?page_id='.$pid.'&zbt=$1&';
-		
+
 		$f[]='/"([a-zA-Z\_]*?).php\"/';
 		$r[]='"'.$home.'index.php?page_id='.$pid.'&zbt=$1"';
 			
@@ -439,10 +438,10 @@ function zing_bt_ob($buffer) {
 		$r[]='action="'.$home.'index.php?page_id='.$pid.'&zbt=$1"';
 		$f[]='/action\="'.preg_quote($mantisbtself,'/').'(.*?).php\?(.*?)"'.'/';
 		$r[]='action="'.$home.'index.php?page_id='.$pid.'&zbt=$1&$2"';
-		
+
 		//replacement issue with src="/wordpress/wp-content/plugins/bug-tracker/mantisbt/images/rss.png" alt="RSS"
 		$buffer=preg_replace($f,$r,$buffer,-1,$count);
-		
+
 		$buffer=str_replace('name="name"','name="bt_name"',$buffer);
 	} else {
 		//admin pages
@@ -459,7 +458,7 @@ function zing_bt_init()
 	global $zing_bt_mode;
 
 	ob_start();
-	session_start();
+	if (!session_id()) @session_start();
 	zing_bt_login();
 	if (isset($_GET['zbt']))
 	{
@@ -476,7 +475,7 @@ function zing_bt_login() {
 	//if (is_user_logged_in()) {
 	//	zing_bt_login_user($current_user->data->user_login,$current_user->data->user_pass);
 	//} else {
-		zing_bt_login_anonymous();
+	zing_bt_login_anonymous();
 	//}
 }
 
@@ -559,7 +558,7 @@ function zing_bt_profile_update($user_id) {
 function zing_bt_user_register($user_id) {
 	//error_reporting(E_ALL & ~E_NOTICE);
 	//ini_set('display_errors', '1');
-//	if (class_exists('btusers')) return;
+	//	if (class_exists('btusers')) return;
 	$user=new WP_User($user_id);
 	$btusers=new btusers();
 	$group=$btusers->getBugTrackerGroup($user);
