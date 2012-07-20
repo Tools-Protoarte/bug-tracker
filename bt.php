@@ -5,11 +5,11 @@
  Description: Mantis Bug Tracker Bridge is a plugin that integrates the powerfull Mantis bug tracker software with Wordpress. It brings one of the most powerfull bug tracking softwares in reach of Wordpress users.
 
  Author: Zingiri
- Version: 1.2.2
+ Version: 1.2.3
  Author URI: http://www.zingiri.com/
  */
 
-define("ZING_BT_VERSION","1.2.2");
+define("ZING_BT_VERSION","1.2.3");
 define("ZING_MANTIS","mantisbt");
 define("ZING_MANTIS_VERSION","1.2.2");
 
@@ -37,13 +37,13 @@ if ($zing_bt_version) {
 	if (get_option('zing_bt_footer')=='Site') add_filter('wp_footer','zing_footers');
 	add_filter('the_content', 'zing_bt_content', 10, 3);
 	add_action('wp_head','zing_bt_header');
-	add_action('wp_login','zing_bt_login');
-	add_action('wp_logout','zing_bt_logout');
+	//add_action('wp_login','zing_bt_login');
+	//add_action('wp_logout','zing_bt_logout');
 
-	add_filter('check_password','zing_bt_check_password',10,4);
-	add_action('profile_update','zing_bt_profile_update'); //post wp update
-	add_action('user_register','zing_bt_user_register'); //post wp update
-	add_action('delete_user','zing_bt_user_delete');
+	//add_filter('check_password','zing_bt_check_password',10,4);
+	//add_action('profile_update','zing_bt_profile_update'); //post wp update
+	//add_action('user_register','zing_bt_user_register'); //post wp update
+	//add_action('delete_user','zing_bt_user_delete');
 }
 register_activation_hook(__FILE__,'zing_bt_activate');
 register_deactivation_hook(__FILE__,'zing_bt_deactivate');
